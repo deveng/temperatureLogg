@@ -1,0 +1,35 @@
+199:
+  datetime:
+  - 2024-06-23 21:35:38
+  humidity:
+  - 52
+  temp:
+  - 24.8
+215:
+  datetime:
+  - 2024-06-23 21:36:08
+  humidity:
+  - 52
+  temp:
+  - 25.1
+231:
+  datetime:
+  - 2024-06-23 21:36:02
+  humidity:
+  - 53
+  temp:
+  - 24.6
+247:
+  datetime:
+  - 2024-06-23 21:36:04
+  humidity:
+  - 50
+  temp:
+  - 25.6
+255:
+  datetime:
+  - 2024-06-23 21:35:32
+  humidity:
+  - null
+  temp:
+  - 20.4
