@@ -16,6 +16,7 @@ class READ_SENSORS():
         self.logFilename = '/home/pi/PROJECTS/temperatureLogg/temperature_log.yml'
 
         self.deviceNames = {
+            107: None,
             199: 'Köket',
             231: 'MPs rum',
             247: 'Teos rum',
@@ -51,6 +52,8 @@ class READ_SENSORS():
 
 
     def writeLogFile(self):
+        self.cleanupLog()
+
         with open(self.logFilename, 'w') as outfile:
             yaml.dump(self.datalog, outfile, default_flow_style=False)
         print("Wrote: {}".format(self.logFilename))
@@ -117,30 +120,40 @@ class READ_SENSORS():
         for id, newData in self.lastReading.items():
 
             updateLogItem = True
+
+            # Create new ID if needed
             if id not in self.datalog:
                 self.datalog[id] = {}
                 self.datalog[id]['temp'] = []
                 self.datalog[id]['humidity'] = []
                 self.datalog[id]['datetime'] = []
-            else:
-                lastTS = self.datalog[id]['datetime'][-1]
-                if newData['datetime'] <= lastTS:
-                    updateLogItem = False
+
+            else: # Get last time in log
+                if len(self.datalog[id]['datetime']) > 0:
+                    lastTS = self.datalog[id]['datetime'][-1]
+                    if newData['datetime'] <= lastTS:
+                        updateLogItem = False
 
             if updateLogItem:
-                # Only keep latest, if same numbers
-                if (self.datalog[id]['temp'][-1] == newData['temp'] and 
-                    self.datalog[id]['humidity'][-1] == newData['humidity']):
+                # Only update timestamp if same numbers
+                identicalData = False
+                if (len(self.datalog[id]['temp']) > 0 and 
+                    len(self.datalog[id]['humidity']) > 0):
 
-                    self.datalog[id]['datetime'][-1] = newData['datetime']
+                    if (self.datalog[id]['temp'][-1] == newData['temp'] and 
+                        self.datalog[id]['humidity'][-1] == newData['humidity']):
 
-                else:
+                        self.datalog[id]['datetime'][-1] = newData['datetime']
+            
+                        identicalData = True
+
+                if not identicalData:
                     self.datalog[id]['temp'].append( newData['temp'] )
                     self.datalog[id]['humidity'].append( newData['humidity'] )
                     self.datalog[id]['datetime'].append( newData['datetime'] )
 
                 updated = True
-                print("ID:{}, T:{}, H:{}".format(id, self.datalog[id]['temp'][-1], self.datalog[id]['humidity'][-1]))
+                print("ID:{}, T:{}, H:{} Time:{}".format(id, self.datalog[id]['temp'][-1], self.datalog[id]['humidity'][-1], self.datalog[id]['datetime'][-1]))
 
         return updated
 
@@ -156,6 +169,47 @@ class READ_SENSORS():
                 self.timeLastFileStorage = now
 
         return isUpdated
+
+    def cleanupLog(self):
+        # Remove sequential duplicates
+        #for id, idDict in self.datalog.items():
+        #    for dName, dArr in idDict.items():
+        #        for d in dArr:
+        #            pass
+
+        newDict = {}
+
+        # Limit amount of data
+        maxArrayLength = 10000 # 69 days if every 10th minute
+        # Limit samplerate to 10 min
+        for id, idDict in self.datalog.items():
+            newIdDict ={}
+            newIdDict['datetime'] = []
+            newIdDict['temp'] = []
+            newIdDict['humidity'] = []
+            itemCnt = 0
+
+            if len(idDict['datetime']) == 0:
+                continue
+            lastTime = idDict['datetime'][-1]
+
+            for idx, t in reversed(list(enumerate(idDict['datetime']))):
+
+                if t < lastTime - timedelta(hours=0, minutes=10):
+                    newIdDict['datetime'].insert(0, t)
+                    newIdDict['temp'].insert(0, idDict['temp'][idx])
+                    newIdDict['humidity'].insert(0, idDict['humidity'][idx])
+
+                    lastTime = t
+                    itemCnt += 1
+
+                if itemCnt > maxArrayLength:
+                    break
+            
+            newDict[id] = newIdDict
+
+        #pprint.pprint(newDict)
+        self.datalog = newDict
 
 
     def getName(self, id):
