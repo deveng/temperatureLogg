@@ -151,7 +151,7 @@ class READ_SENSORS():
 
         if isUpdated:
             now = datetime.now()
-            if now > self.timeLastFileStorage + timedelta(hour=1):
+            if now > self.timeLastFileStorage + timedelta(hours=1):
                 self.writeLogFile()
                 self.timeLastFileStorage = now
 
