@@ -5,6 +5,7 @@ import sys
 import pprint
 import time
 import matplotlib.pyplot as plt
+import matplotlib
 import atexit
 
 import t_read
@@ -57,21 +58,23 @@ class ROOM:
 if __name__ == "__main__":
 
     myLines = {}
-    plt.ion()
     
+    matplotlib.rcParams['toolbar'] = 'None'
     plt.style.use('dark_background')
+    plt.ion()
 
     figure, ax = plt.subplots(nrows=2) #, figsize=(10, 8))
     
     mng = plt.get_current_fig_manager()
-    mng.resize(*mng.window.maxsize())
+    mng.full_screen_toggle()
+    plt.tight_layout()
 
-    ax[0].set_title("TEMPERATURE / HUMIDITY")
-    ax[0].set_xlabel("Time")
+    ax[0].set_title("TEMPERATURE")
+    #ax[0].set_xlabel("Time")
     ax[0].set_ylabel("Celcius")
 
-    #ax[1].set_title("HUMIDITY")
-    ax[1].set_xlabel("Time")
+    ax[1].set_title("HUMIDITY")
+    #ax[1].set_xlabel("Time")
     ax[1].set_ylabel("%")
 
     while True:
@@ -90,4 +93,4 @@ if __name__ == "__main__":
             figure.canvas.draw()
 
         figure.canvas.flush_events()
-        time.sleep(1)
+        time.sleep(10)
