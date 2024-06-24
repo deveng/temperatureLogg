@@ -5,17 +5,20 @@ import sys
 import pprint
 import time
 import matplotlib.pyplot as plt
+import atexit
 
 import t_read
 
 rs = t_read.READ_SENSORS()
+atexit.register( rs.writeLogFile )
 
 def signal_handler(sig, frame):
     print('You pressed Ctrl+C!')
-    rs.writeLogFile()
     sys.exit(0)
 
 signal.signal(signal.SIGINT, signal_handler)
+signal.signal(signal.SIGTERM, signal_handler)
+# SIGKILL seems tricky. ADded timer for continously storage
 
 class ROOM:
     def __init__(self, rs, id, ax):
@@ -29,36 +32,45 @@ class ROOM:
         xT,yT = self.rs.getTemp(self.id)
         xH,yH = self.rs.getHumidity(self.id)
 
-
-
         if self.firstTime:
-            name = self.rs.getName(self.id)
+            self.name = self.rs.getName(self.id)
+            # Do not plot unknown sensors
+            if self.name == None:
+                return
 
-            self.lineTemp, = ax[0].plot(xT, yT, label=name, **{'marker': 'o'})
+            self.lineTemp, = ax[0].plot(xT, yT, label=self.name)#, **{'marker': 'o'})
             if yH != None:
-                self.lineHumi, = ax[1].plot(xH, yH, label=name, **{'marker': 'o'})
+                self.lineHumi, = ax[1].plot(xH, yH, label=self.name)#, **{'marker': 'o'})
 
             self.firstTime = False
 
         else:
             self.lineTemp.set_xdata(xT)
             self.lineTemp.set_ydata(yT)
+            self.lineTemp.set_label("{}: {}".format(self.name, yT[-1]))
             if yH != None:
                 self.lineHumi.set_xdata(xH)
                 self.lineHumi.set_ydata(yH)
+                self.lineHumi.set_label("{}: {}".format(self.name, yH[-1]))
+
 
 if __name__ == "__main__":
 
     myLines = {}
     plt.ion()
     
-    figure, ax = plt.subplots(nrows=2, figsize=(10, 8))
+    plt.style.use('dark_background')
+
+    figure, ax = plt.subplots(nrows=2) #, figsize=(10, 8))
     
-    ax[0].set_title("TEMPERATURE")
+    mng = plt.get_current_fig_manager()
+    mng.resize(*mng.window.maxsize())
+
+    ax[0].set_title("TEMPERATURE / HUMIDITY")
     ax[0].set_xlabel("Time")
     ax[0].set_ylabel("Celcius")
 
-    ax[1].set_title("HUMIDITY")
+    #ax[1].set_title("HUMIDITY")
     ax[1].set_xlabel("Time")
     ax[1].set_ylabel("%")
 
@@ -72,6 +84,9 @@ if __name__ == "__main__":
 
             for a in ax:
                 a.legend()
+                a.relim()
+                a.autoscale_view()
+
             figure.canvas.draw()
 
         figure.canvas.flush_events()

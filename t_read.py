@@ -3,6 +3,7 @@
 import subprocess
 import pprint
 from datetime import datetime
+from datetime import timedelta
 from pathlib import Path
 import yaml
 import re
@@ -15,11 +16,11 @@ class READ_SENSORS():
         self.logFilename = '/home/pi/PROJECTS/temperatureLogg/temperature_log.yml'
 
         self.deviceNames = {
-            199: 'rum1',
-            231: 'rum2',
-            247: 'rum3',
-            255: 'rum4',
-            215: 'rum5',
+            199: 'Köket',
+            231: 'MPs rum',
+            247: 'Teos rum',
+            255: None, # 'Unknown',
+            215: 'Filips rum',
         }
 
         self.deviceFeatures = {
@@ -33,10 +34,14 @@ class READ_SENSORS():
         self.lastReading = {}
         self.readLogFile()
 
+        self.timeLastFileStorage = datetime.now()
 
     def readLogFile(self):
         try:
             oldLog = yaml.safe_load(Path(self.logFilename).read_text())
+            if oldLog == None:
+                oldLog = {}
+
         except:
             print("No historical data found")
             self.datalog = {}
@@ -123,17 +128,34 @@ class READ_SENSORS():
                     updateLogItem = False
 
             if updateLogItem:
-                self.datalog[id]['temp'].append( newData['temp'] )
-                self.datalog[id]['humidity'].append( newData['humidity'] )
-                self.datalog[id]['datetime'].append( newData['datetime'] )
+                # Only keep latest, if same numbers
+                if (self.datalog[id]['temp'][-1] == newData['temp'] and 
+                    self.datalog[id]['humidity'][-1] == newData['humidity']):
+
+                    self.datalog[id]['datetime'][-1] = newData['datetime']
+
+                else:
+                    self.datalog[id]['temp'].append( newData['temp'] )
+                    self.datalog[id]['humidity'].append( newData['humidity'] )
+                    self.datalog[id]['datetime'].append( newData['datetime'] )
+
                 updated = True
+                print("ID:{}, T:{}, H:{}".format(id, self.datalog[id]['temp'][-1], self.datalog[id]['humidity'][-1]))
 
         return updated
 
 
     def update(self):
         self.readSensors()
-        return self.addToLog()
+        isUpdated = self.addToLog()
+
+        if isUpdated:
+            now = datetime.now()
+            if now > self.timeLastFileStorage + timedelta(hour=1):
+                self.writeLogFile()
+                self.timeLastFileStorage = now
+
+        return isUpdated
 
 
     def getName(self, id):
