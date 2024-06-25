@@ -35,21 +35,27 @@ class ROOM:
 
         if self.firstTime:
             self.name = self.rs.getName(self.id)
-            # Do not plot unknown sensors
+            # Do not plot None sensors
             if self.name == None:
                 return
 
-            self.lineTemp, = ax[0].plot(xT, yT, label=self.name)#, **{'marker': 'o'})
+            self.lineTemp = None
+            if yT != None:
+                self.lineTemp, = ax[0].plot(xT, yT, label=self.name)#, **{'marker': 'o'})
+
+            self.lineHumi = None
             if yH != None:
                 self.lineHumi, = ax[1].plot(xH, yH, label=self.name)#, **{'marker': 'o'})
 
             self.firstTime = False
 
         else:
-            self.lineTemp.set_xdata(xT)
-            self.lineTemp.set_ydata(yT)
-            self.lineTemp.set_label("{}: {}".format(self.name, yT[-1]))
-            if yH != None:
+            if self.lineTemp is not None:
+                self.lineTemp.set_xdata(xT)
+                self.lineTemp.set_ydata(yT)
+                self.lineTemp.set_label("{}: {}".format(self.name, yT[-1]))
+
+            if self.lineHumi is not None:
                 self.lineHumi.set_xdata(xH)
                 self.lineHumi.set_ydata(yH)
                 self.lineHumi.set_label("{}: {}".format(self.name, yH[-1]))
@@ -86,7 +92,7 @@ if __name__ == "__main__":
                 myLines[id].update()
 
             for a in ax:
-                a.legend()
+                a.legend(loc='lower left', shadow=True)
                 a.relim()
                 a.autoscale_view()
 
