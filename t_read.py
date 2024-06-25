@@ -70,8 +70,7 @@ class READ_SENSORS():
 
     def readSensors(self):
 
-        # TODO: Why /dev/null ??!
-        res = subprocess.run(["/usr/bin/tdtool", "--list", "/dev/null"], capture_output=True, text=True)
+        res = subprocess.run(["/usr/bin/tdtool", "--list"], capture_output=True, text=True)
 
         for l in res.stdout.split('\n'):
             lSplit = l.split()
