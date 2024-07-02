@@ -53,12 +53,12 @@ class ROOM:
             if self.lineTemp is not None:
                 self.lineTemp.set_xdata(xT)
                 self.lineTemp.set_ydata(yT)
-                self.lineTemp.set_label("{}: {}".format(self.name, yT[-1]))
+                self.lineTemp.set_label("{}: {}({}/{})".format(self.name, yT[-1], min(yT), max(yT)))
 
             if self.lineHumi is not None:
                 self.lineHumi.set_xdata(xH)
                 self.lineHumi.set_ydata(yH)
-                self.lineHumi.set_label("{}: {}".format(self.name, yH[-1]))
+                self.lineHumi.set_label("{}: {}({}/{})".format(self.name, yH[-1], min(yH), max(yH)))
 
 
 if __name__ == "__main__":

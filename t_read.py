@@ -16,12 +16,19 @@ class READ_SENSORS():
         self.logFilename = '/home/pi/PROJECTS/temperatureLogg/temperature_log.yml'
 
         self.deviceNames = {
-            107: None,
-            123: None,
             199: 'Köket',
             215: 'Filips rum',
             231: 'MPs rum',
             247: 'Teos rum',
+            93: None,
+            107: None,
+            123: None,
+            142: None,
+            161: None,
+            174: None,
+            175: None,
+            206: None, 
+            207: None,
             255: None, # 'Unknown',
         }
 
