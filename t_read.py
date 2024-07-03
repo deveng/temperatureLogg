@@ -207,7 +207,14 @@ class READ_SENSORS():
             for idx, t in reversed(list(enumerate(idDict['datetime']))):
 
                 if t < lastTime - timedelta(hours=0, minutes=10):
+
+                    # TODO: Stupid quick fix
+                    if "humidity" in idDict:
+                        if idDict["humidity"][idx] == 255:
+                            continue
+
                     newIdDict['datetime'].insert(0, t)
+
                     for feat in self.getFeatures(id):
                         newIdDict[feat].insert(0, idDict[feat][idx])
 
@@ -228,7 +235,7 @@ class READ_SENSORS():
         if id in self.deviceNames:
             name = self.deviceNames[id]
         else:
-            name = str(id)
+            name = None #str(id)
         return name
 
     def getIDs(self):
