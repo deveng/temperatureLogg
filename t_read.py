@@ -16,6 +16,7 @@ class READ_SENSORS():
         self.logFilename = '/home/pi/PROJECTS/temperatureLogg/temperature_log.yml'
 
         self.deviceNames = {
+            135: 'Ute',
             199: 'Köket',
             215: 'Filips rum',
             231: 'MPs rum',
