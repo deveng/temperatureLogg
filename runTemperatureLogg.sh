@@ -1,7 +1,8 @@
 #!/usr/bin/bash
 
-logDir="/var/log/temperatureLogg"
+binDir="/home/pi/PROJECTS/temperatureLogg"
+logDir=$binDir
 
 mkdir -p $logDir
 
-/home/pi/PROJECTS/temperatureLogg/main.py > $logDir/runLog.txt 2>&1
+$binDir/main.py > $logDir/runLog.txt 2>&1

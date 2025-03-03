@@ -188,7 +188,7 @@ class READ_SENSORS():
     def cleanupLog(self):
         newDict = {}
 
-        maxArrayLength = 10000 # 69 days if every 10th minute
+        maxArrayLength = 4*10000 # 4*69 days if every 10th minute
         # Limit samplerate to 10 min
         for id, idDict in self.datalog.items():
             # Create a copy
