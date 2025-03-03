@@ -211,7 +211,11 @@ class READ_SENSORS():
 
                     # TODO: Stupid quick fix
                     if "humidity" in idDict:
-                        if idDict["humidity"][idx] == 255:
+                        if idDict["humidity"][idx] > 100: #== 255:
+                            continue
+
+                    if "temp" in idDict:
+                        if idDict["temp"][idx] > 80: #== 255:
                             continue
 
                     newIdDict['datetime'].insert(0, t)
